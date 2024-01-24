@@ -15,7 +15,11 @@ function displayItems() {
 function onAddItemSubmit(e) {
 	e.preventDefault();
 
-	const newItem = itemInput.value;
+	// Format input
+	const stringInput = itemInput.value.toLowerCase().trim();
+	const newItem = stringInput.charAt(0).toUpperCase() + stringInput.slice(1);
+
+	const itemToEdit = itemList.querySelector('.edit-mode');
 
 	// Validate Input
 	if (newItem === '') {
@@ -23,18 +27,19 @@ function onAddItemSubmit(e) {
 		return;
 	}
 
+	if (checkIfItemExists(newItem)) {
+		alert('That item already exists!');
+		itemToEdit.classList.remove('edit-mode');
+		resetUI();
+		return;
+	}
+
 	// Check for edit mode
 	if (isEditMode) {
-		const itemToEdit = itemList.querySelector('.edit-mode');
-
 		removeItemFromStorage(itemToEdit.textContent);
 		itemToEdit.classList.remove('edit-mode');
 		itemToEdit.remove();
-	} else {
-		if (checkIfItemExists(newItem)) {
-			alert('That item already exists!');
-			return;
-		}
+		isEditMode = false;
 	}
 
 	addItemToDom(newItem);
@@ -105,7 +110,8 @@ function onClickItem(e) {
 
 function checkIfItemExists(item) {
 	const itemsFromStorage = getItemsFromStorage();
-	return itemsFromStorage.includes(item);
+	const itemsLowerCase = itemsFromStorage.map((str) => str.toLowerCase());
+	return itemsLowerCase.includes(item.toLowerCase());
 }
 
 function setItemToEdit(item) {
